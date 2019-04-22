@@ -18,7 +18,6 @@ parser = argparse.ArgumentParser(description='Training')
 parser.add_argument('--gpu_ids', default='0', type=str, help='gpu_ids: e.g. 0  0,1,2  0,2')
 parser.add_argument('--data_dir', default='/data_set', type=str, help='training dir path')
 parser.add_argument('--batchsize', default=32, type=int, help='batchsize')
-parser.add_argument('--stride', default=2, type=int, help='stride')
 parser.add_argument('--lr', default=0.05, type=float, help='learning rate')
 parser.add_argument('--droprate', default=0.5, type=float, help='drop rate')
 
@@ -61,7 +60,7 @@ image_datasets = datasets.ImageFolder(os.path.join(data_dir, 'train'), transform
 # 数据读取
 
 data_loaders = torch.utils.data.DataLoader(image_datasets, batch_size=opt.batchsize, shuffle=True, num_workers=8, pin_memory=True)
-dataset_sizes = len(image_datasets[x])
+dataset_sizes = len(image_datasets)
 classes_num = len(image_datasets.classes)
 
 # 训练模型
@@ -150,7 +149,7 @@ def save_network(network, epoch_label):
 
 
 # 加载模型
-model = Model(classes_num, opt.droprate, opt.stride)
+model = Model(classes_num, opt.droprate)
 print(model)
 
 ignored_params = list(map(id, model.classifier.parameters()))

@@ -5,78 +5,72 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 import torch.backends.cudnn as cudnn
-import numpy as np
 from torchvision import datasets, models, transforms
 
 import os
 import scipy.io
-import yaml
 from model import Model
 
-parser = argparse.ArgumentParser(description='Training')
+# 设定参数
+parser = argparse.ArgumentParser(description='Testing')
 parser.add_argument('--gpu_ids', default='0', type=str, help='gpu_ids: e.g. 0  0,1,2  0,2')
 parser.add_argument('--which_epoch', default='last', type=str, help='0,1,2,3...or last')
-parser.add_argument('--test_dir', default='../Market/pytorch', type=str, help='./test_data')
+parser.add_argument('--test_dir', default='/data_set', type=str, help='./test_data')
 parser.add_argument('--batchsize', default=256, type=int, help='batchsize')
 
 opt = parser.parse_args()
-opt.stride = 2
+
 opt.nclasses = 751
 
-str_ids = opt.gpu_ids.split(',')
-name = opt.name
-test_dir = opt.test_dir
-
+# 设定gpu
+use_gpu = torch.cuda.is_available()
+gpu_ids_str = opt.gpu_ids.split(',')
 gpu_ids = []
-for str_id in str_ids:
-    id = int(str_id)
-    if id >= 0:
-        gpu_ids.append(id)
 
-# set gpu ids
+for str_id in gpu_ids_str:
+    gpu_id = int(str_id)
+    if gpu_id >= 0:
+        gpu_ids.append(gpu_id)
+
 if len(gpu_ids) > 0:
     torch.cuda.set_device(gpu_ids[0])
     cudnn.benchmark = True
 
-######################################################################
-# Load Data
-# ---------
-
+# 图像预处理
 data_transforms = transforms.Compose([
     transforms.Resize((256, 128), interpolation=3),
     transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
 
-data_dir = test_dir
-
-image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x), data_transforms) for x in ['gallery', 'query']}
-dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=opt.batchsize,
-                                                  shuffle=False, num_workers=16) for x in ['gallery', 'query']}
+# 数据读取
+data_dir = opt.test_dir
+image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x), data_transforms) for x in ['test', 'query']}
+data_loaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=opt.batchsize,
+                                                  shuffle=False, num_workers=16) for x in ['test', 'query']}
 class_names = image_datasets['query'].classes
-use_gpu = torch.cuda.is_available()
-
 
 def load_network(network):
-    save_path = os.path.join('./model', name, 'net_%s.pth' % opt.which_epoch)
+    save_path = os.path.join('./model', 'net_%s.pth' % opt.which_epoch)
     network.load_state_dict(torch.load(save_path))
     return network
 
 
-def fliplr(img):
+def fliplr(img): # 左右翻转
     inv_idx = torch.arange(img.size(3) - 1, -1, -1).long()
     img_flip = img.index_select(3, inv_idx)
     return img_flip
 
 
-def extract_feature(model, dataloaders):
+def extract_feature(model, dataloader):
+    dataset_size = len(dataloader.dataset)
     features = torch.FloatTensor()
-    count = 0
-    for data in dataloaders:
+    extracted_count = 0
+    for data in dataloader:
         img, label = data
         n, c, h, w = img.size()
-        count += n
-        print(count)
+        extracted_count += n
+        print("Progress: %d/%d" % (extracted_count, dataset_size))
         ff = torch.FloatTensor(n, 512).zero_()
 
         for i in range(2):
@@ -114,9 +108,7 @@ query_path = image_datasets['query'].imgs
 gallery_cam, gallery_label = get_id(gallery_path)
 query_cam, query_label = get_id(query_path)
 
-######################################################################
-# Load Collected data Trained model
-print('-------test-----------')
+# 加载模型并提取特征
 
 model_structure = Model(opt.nclasses, stride=opt.stride)
 
@@ -130,8 +122,8 @@ if use_gpu:
 
 # Extract feature
 with torch.no_grad():
-    gallery_feature = extract_feature(model, dataloaders['gallery'])
-    query_feature = extract_feature(model, dataloaders['query'])
+    gallery_feature = extract_feature(model, data_loaders['test'])
+    query_feature = extract_feature(model, data_loaders['query'])
 
 # Save to Matlab for check
 result = {'gallery_f': gallery_feature.numpy(), 'gallery_label': gallery_label, 'gallery_cam': gallery_cam,
