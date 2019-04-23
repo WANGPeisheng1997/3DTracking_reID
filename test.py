@@ -102,7 +102,7 @@ def get_id(img_path):
     return camera_id, labels
 
 
-gallery_path = image_datasets['gallery'].imgs
+gallery_path = image_datasets['test'].imgs
 query_path = image_datasets['query'].imgs
 
 gallery_cam, gallery_label = get_id(gallery_path)
