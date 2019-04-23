@@ -8,8 +8,8 @@ import torch.backends.cudnn as cudnn
 from torchvision import datasets, models, transforms
 
 import os
-import scipy.io
 from model import Model
+from evaluate import test_market
 
 # 设定参数
 parser = argparse.ArgumentParser(description='Testing')
@@ -17,6 +17,7 @@ parser.add_argument('--gpu_ids', default='0', type=str, help='gpu_ids: e.g. 0  0
 parser.add_argument('--which_epoch', default='last', type=str, help='0,1,2,3...or last')
 parser.add_argument('--data_dir', default='data_set', type=str, help='the directory of the data set')
 parser.add_argument('--batchsize', default=256, type=int, help='batch size')
+parser.add_argument('--save_path', default='result.mat', type=str, help='save path of the result')
 
 opt = parser.parse_args()
 
@@ -102,6 +103,8 @@ def get_id(img_path):
     return camera_id, labels
 
 
+# 获取gallery和query各图像信息
+
 gallery_path = image_datasets['test'].imgs
 query_path = image_datasets['query'].imgs
 
@@ -122,7 +125,4 @@ with torch.no_grad():
     gallery_feature = extract_feature(model, data_loaders['test'])
     query_feature = extract_feature(model, data_loaders['query'])
 
-# Save to Matlab for check
-result = {'gallery_f': gallery_feature.numpy(), 'gallery_label': gallery_label, 'gallery_cam': gallery_cam,
-          'query_f': query_feature.numpy(), 'query_label': query_label, 'query_cam': query_cam}
-scipy.io.savemat('pytorch_result.mat', result)
+test_market(query_feature, query_label, query_cam, gallery_feature, gallery_label, gallery_cam)
