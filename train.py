@@ -16,7 +16,7 @@ from model import Model
 # 设定参数
 parser = argparse.ArgumentParser(description='Training')
 parser.add_argument('--gpu_ids', default='0', type=str, help='gpu_ids: e.g. 0  0,1,2  0,2')
-parser.add_argument('--data_dir', default='/data_set', type=str, help='training dir path')
+parser.add_argument('--data_dir', default='data_set', type=str, help='training dir path')
 parser.add_argument('--batchsize', default=32, type=int, help='batchsize')
 parser.add_argument('--lr', default=0.05, type=float, help='learning rate')
 parser.add_argument('--droprate', default=0.5, type=float, help='drop rate')
@@ -111,18 +111,18 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs):
             running_loss += loss.item() * now_batch_size
             running_corrects += float(torch.sum(predictions == labels.data))
 
-            epoch_loss = running_loss / dataset_sizes
-            epoch_acc = running_corrects / dataset_sizes
+        epoch_loss = running_loss / dataset_sizes
+        epoch_acc = running_corrects / dataset_sizes
 
-            print('Loss: {:.4f} Acc: {:.4f}'.format(epoch_loss, epoch_acc))
+        print('Loss: {:.4f} Acc: {:.4f}'.format(epoch_loss, epoch_acc))
 
-            y_loss.append(epoch_loss)
-            y_err.append(1.0 - epoch_acc)
+        y_loss.append(epoch_loss)
+        y_err.append(1.0 - epoch_acc)
 
-            # 保存模型
-            last_model_wts = model.state_dict()
-            if epoch % 10 == 9:
-                save_network(model, epoch)
+        # 保存模型
+        last_model_wts = model.state_dict()
+        if epoch % 10 == 9:
+            save_network(model, epoch)
 
         time_elapsed = time.time() - train_start_time
         print('Training complete in {:.0f}m {:.0f}s'.format(
@@ -142,7 +142,7 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs):
 # 保存模型
 def save_network(network, epoch_label):
     save_filename = 'net_%s.pth' % epoch_label
-    save_path = os.path.join('./model', save_filename)
+    save_path = os.path.join('model', save_filename)
     torch.save(network.cpu().state_dict(), save_path)
     if torch.cuda.is_available():
         network.cuda(gpu_ids[0])
