@@ -5,7 +5,7 @@ from shutil import copyfile
 market_path = '../Market'
 
 # 整理后的数据集路径
-save_path = '/data_set'
+save_path = 'data_set'
 if not os.path.isdir(save_path):
     os.mkdir(save_path)
 
