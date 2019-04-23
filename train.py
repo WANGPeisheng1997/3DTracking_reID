@@ -140,8 +140,10 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs):
 
 
 # 保存模型
-def save_network(network, epoch_label):
-    save_filename = 'net_%s.pth' % epoch_label
+def save_network(network, epoch):
+    if not os.path.isdir('model'):
+        os.mkdir('model')
+    save_filename = 'epoch_%s.model' % epoch
     save_path = os.path.join('model', save_filename)
     torch.save(network.cpu().state_dict(), save_path)
     if torch.cuda.is_available():
