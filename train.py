@@ -16,8 +16,8 @@ from model import Model
 # 设定参数
 parser = argparse.ArgumentParser(description='Training')
 parser.add_argument('--gpu_ids', default='0', type=str, help='gpu_ids: e.g. 0  0,1,2  0,2')
-parser.add_argument('--data_dir', default='data_set', type=str, help='training dir path')
-parser.add_argument('--batchsize', default=32, type=int, help='batchsize')
+parser.add_argument('--data_dir', default='data_set', type=str, help='the directory of the data set')
+parser.add_argument('--batchsize', default=32, type=int, help='batch size')
 parser.add_argument('--lr', default=0.05, type=float, help='learning rate')
 parser.add_argument('--droprate', default=0.5, type=float, help='drop rate')
 
@@ -122,7 +122,7 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs):
         # 保存模型
         last_model_wts = model.state_dict()
         if epoch % 10 == 9:
-            save_network(model, epoch)
+            save_network(model, epoch + 1)
 
         time_elapsed = time.time() - train_start_time
         print('Training complete in {:.0f}m {:.0f}s'.format(

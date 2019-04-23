@@ -15,12 +15,12 @@ from model import Model
 parser = argparse.ArgumentParser(description='Testing')
 parser.add_argument('--gpu_ids', default='0', type=str, help='gpu_ids: e.g. 0  0,1,2  0,2')
 parser.add_argument('--which_epoch', default='last', type=str, help='0,1,2,3...or last')
-parser.add_argument('--test_dir', default='/data_set', type=str, help='./test_data')
-parser.add_argument('--batchsize', default=256, type=int, help='batchsize')
+parser.add_argument('--data_dir', default='data_set', type=str, help='the directory of the data set')
+parser.add_argument('--batchsize', default=256, type=int, help='batch size')
 
 opt = parser.parse_args()
 
-opt.nclasses = 751
+classes_num = 751
 
 # 设定gpu
 use_gpu = torch.cuda.is_available()
@@ -50,8 +50,9 @@ data_loaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=opt
                                                   shuffle=False, num_workers=16) for x in ['test', 'query']}
 class_names = image_datasets['query'].classes
 
+
 def load_network(network):
-    save_path = os.path.join('./model', 'net_%s.pth' % opt.which_epoch)
+    save_path = os.path.join('model', 'epoch_%s.model' % opt.which_epoch)
     network.load_state_dict(torch.load(save_path))
     return network
 
@@ -110,17 +111,14 @@ query_cam, query_label = get_id(query_path)
 
 # 加载模型并提取特征
 
-model_structure = Model(opt.nclasses, stride=opt.stride)
-
+model_structure = Model(classes_num)
 model = load_network(model_structure)
 model.classifier.classifier = nn.Sequential()
 
-# Change to test mode
 model = model.eval()
 if use_gpu:
     model = model.cuda()
 
-# Extract feature
 with torch.no_grad():
     gallery_feature = extract_feature(model, data_loaders['test'])
     query_feature = extract_feature(model, data_loaders['query'])
