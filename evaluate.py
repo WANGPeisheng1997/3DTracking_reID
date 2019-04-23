@@ -56,11 +56,11 @@ def compute_mAP(index, good_index, junk_index):
 
 def test_market(query_feature, query_label, query_camera, gallery_feature, gallery_label, gallery_camera):
     print(query_feature.shape)
-    print(query_label.shape)
-    print(query_camera.shape)
+    print(len(query_label))
+    print(len(query_camera))
     print(gallery_feature.shape)
-    print(gallery_label.shape)
-    print(gallery_camera.shape)
+    print(len(gallery_label))
+    print(len(gallery_camera))
     CMC = torch.IntTensor(len(gallery_label)).zero_()
     ap = 0.0
     for i in range(len(query_label)):
