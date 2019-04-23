@@ -70,6 +70,7 @@ def test_market(query_feature, query_label, query_camera, gallery_feature, galle
             continue
         CMC = CMC + CMC_tmp
         ap += ap_tmp
+        print(i, CMC_tmp[0])
 
     CMC = CMC.float()
     CMC = CMC / len(query_label)  # average CMC
