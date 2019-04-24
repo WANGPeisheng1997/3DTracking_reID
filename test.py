@@ -122,7 +122,10 @@ if use_gpu:
     model = model.cuda()
 
 with torch.no_grad():
+    print("Extracting features from gallery!")
     gallery_feature = extract_feature(model, data_loaders['test'])
+    print("Extracting features from query!")
     query_feature = extract_feature(model, data_loaders['query'])
+    print("Extracting complete!")
 
 test_market(query_feature, query_label, query_cam, gallery_feature, gallery_label, gallery_cam)
