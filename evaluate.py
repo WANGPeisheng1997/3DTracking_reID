@@ -1,11 +1,15 @@
 import torch
 import numpy as np
 
+flag = True
 
 def evaluate(query_feature, query_label, query_camera, gallery_feature, gallery_label, gallery_camera):
     query = query_feature.view(-1, 1) # transpose
     # gallery_feature [19732, 512], query_feature [1, 512], query [512, 1]
     score = torch.mm(gallery_feature, query)
+    if flag:
+        print(score)
+        flag = False
     # score [19732, 1] is the dot product of features
     score = score.squeeze(1).cpu()
     score = score.numpy()
@@ -57,15 +61,8 @@ def compute_mAP(index, good_index, junk_index):
 
 
 def test_market(query_feature, query_label, query_camera, gallery_feature, gallery_label, gallery_camera):
-    print(query_feature.shape)
-    print(len(query_label))
-    print(len(query_camera))
-    print(gallery_feature.shape)
-    print(len(gallery_label))
-    print(len(gallery_camera))
     CMC = torch.IntTensor(len(gallery_label)).zero_()
     ap = 0.0
-    print(query_label)
     for i in range(len(query_label)):
         ap_tmp, CMC_tmp = evaluate(query_feature[i], query_label[i], query_camera[i], gallery_feature, gallery_label,
                                    gallery_camera)
@@ -76,5 +73,7 @@ def test_market(query_feature, query_label, query_camera, gallery_feature, galle
         print(i, CMC_tmp[0])
 
     CMC = CMC.float()
+    print(CMC)
+    print(ap)
     CMC = CMC / len(query_label)  # average CMC
     print('Rank@1:%f Rank@5:%f Rank@10:%f mAP:%f' % (CMC[0], CMC[4], CMC[9], ap / len(query_label)))
