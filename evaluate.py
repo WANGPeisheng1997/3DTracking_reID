@@ -11,12 +11,9 @@ def evaluate(query_feature, query_label, query_camera, gallery_feature, gallery_
     # similarity（即cosine distance）从大到小排序后对应原gallery中编号
     index = np.argsort(similarity)
     index = index[::-1]
-    print(index)
     # 在gallery中找到与query的id和camera相同的图片
-    query_index = np.argwhere(gallery_label==query_label)
-    camera_index = np.argwhere(gallery_camera==query_camera)
-    print(query_index)
-    print(camera_index)
+    query_index = np.argwhere(gallery_label == query_label)
+    camera_index = np.argwhere(gallery_camera == query_camera)
 
     good_index = np.setdiff1d(query_index, camera_index, assume_unique=True)
     junk_index1 = np.argwhere(gallery_label==-1)
@@ -58,6 +55,8 @@ def compute_mAP(index, good_index, junk_index):
 
 
 def test_market(query_feature, query_label, query_camera, gallery_feature, gallery_label, gallery_camera):
+    gallery_label = np.array(gallery_label)
+    gallery_camera = np.array(gallery_camera)
     CMC = torch.IntTensor(len(gallery_label)).zero_()
     ap = 0.0
     for i in range(len(query_label)):
