@@ -76,10 +76,10 @@ class Model(nn.Module):
 
 
 if __name__ == '__main__':
-    net = Model(751, stride=1)
-    net.classifier = nn.Sequential()
+    net = Model(751)
+    # net.classifier = nn.Sequential()
     print(net)
-    input = Variable(torch.FloatTensor(8, 3, 256, 128))
-    output = net(input)
-    print('net output size:')
-    print(output.shape)
+    # input = Variable(torch.FloatTensor(8, 3, 256, 128))
+    # output = net(input)
+    # print('net output size:')
+    # print(output.shape)

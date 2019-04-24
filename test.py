@@ -81,6 +81,8 @@ def extract_feature(model, dataloader):
             outputs = model(input_img)
             f = outputs.data.cpu().float()
             ff = ff + f
+
+            # L2norm
             fnorm = torch.norm(ff, p=2, dim=1, keepdim=True)
             ff = ff.div(fnorm.expand_as(ff))
 
