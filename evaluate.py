@@ -1,15 +1,11 @@
 import torch
 import numpy as np
 
-flag = True
 
 def evaluate(query_feature, query_label, query_camera, gallery_feature, gallery_label, gallery_camera):
     query = query_feature.view(-1, 1) # transpose
     # gallery_feature [19732, 512], query_feature [1, 512], query [512, 1]
     score = torch.mm(gallery_feature, query)
-    if flag:
-        print(score)
-        flag = False
     # score [19732, 1] is the dot product of features
     score = score.squeeze(1).cpu()
     score = score.numpy()
