@@ -6,6 +6,7 @@ def evaluate(query_feature, query_label, query_camera, gallery_feature, gallery_
     print(query_label)
     print(query_camera)
     query = query_feature.view(-1, 1) # transpose
+    print(query)
     # gallery_feature [19732, 512], query_feature [1, 512], query [512, 1]
     score = torch.mm(gallery_feature, query)
     # score [19732, 1] is the dot product of features
@@ -61,8 +62,8 @@ def compute_mAP(index, good_index, junk_index):
 
 
 def test_market(query_feature, query_label, query_camera, gallery_feature, gallery_label, gallery_camera):
-    print(gallery_label)
-    print(gallery_camera)
+    # print(gallery_label)
+    # print(gallery_camera)
     CMC = torch.IntTensor(len(gallery_label)).zero_()
     ap = 0.0
     for i in range(len(query_label)):
