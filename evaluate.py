@@ -3,8 +3,10 @@ import numpy as np
 
 
 def evaluate(query_feature, query_label, query_camera, gallery_feature, gallery_label, gallery_camera):
-    query = query_feature.view(-1, 1)
+    query = query_feature.view(-1, 1) # transpose
+    # gallery_feature [19732, 512], query_feature [1, 512], query [512, 1]
     score = torch.mm(gallery_feature, query)
+    # score [19732, 1] is the dot product of features
     score = score.squeeze(1).cpu()
     score = score.numpy()
     # predict index
@@ -63,6 +65,7 @@ def test_market(query_feature, query_label, query_camera, gallery_feature, galle
     print(len(gallery_camera))
     CMC = torch.IntTensor(len(gallery_label)).zero_()
     ap = 0.0
+    print(query_label)
     for i in range(len(query_label)):
         ap_tmp, CMC_tmp = evaluate(query_feature[i], query_label[i], query_camera[i], gallery_feature, gallery_label,
                                    gallery_camera)
