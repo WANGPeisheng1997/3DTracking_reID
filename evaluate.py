@@ -13,13 +13,13 @@ def evaluate(query_feature, query_label, query_camera, gallery_feature, gallery_
     index = index[::-1]
     print(index)
     # 在gallery中找到与query的id和camera相同的图片
-    query_index = np.argwhere(gallery_label == query_label)
-    camera_index = np.argwhere(gallery_camera == query_camera)
+    query_index = np.argwhere(gallery_label==query_label)
+    camera_index = np.argwhere(gallery_camera==query_camera)
     print(query_index)
     print(camera_index)
 
     good_index = np.setdiff1d(query_index, camera_index, assume_unique=True)
-    junk_index1 = np.argwhere(gallery_label == -1)
+    junk_index1 = np.argwhere(gallery_label==-1)
     junk_index2 = np.intersect1d(query_index, camera_index)
     junk_index = np.append(junk_index2, junk_index1)
 
