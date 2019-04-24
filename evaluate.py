@@ -3,6 +3,8 @@ import numpy as np
 
 
 def evaluate(query_feature, query_label, query_camera, gallery_feature, gallery_label, gallery_camera):
+    print(query_label)
+    print(query_camera)
     query = query_feature.view(-1, 1) # transpose
     # gallery_feature [19732, 512], query_feature [1, 512], query [512, 1]
     score = torch.mm(gallery_feature, query)
@@ -16,6 +18,8 @@ def evaluate(query_feature, query_label, query_camera, gallery_feature, gallery_
     # good index
     query_index = np.argwhere(query_label == gallery_label)
     camera_index = np.argwhere(query_camera == gallery_camera)
+    print(query_index)
+    print(camera_index)
 
     good_index = np.setdiff1d(query_index, camera_index, assume_unique=True)
     junk_index1 = np.argwhere(gallery_label == -1)
