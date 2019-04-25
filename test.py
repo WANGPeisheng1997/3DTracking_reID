@@ -17,7 +17,6 @@ parser.add_argument('--gpu_ids', default='0', type=str, help='gpu_ids: e.g. 0  0
 parser.add_argument('--which_epoch', default='last', type=str, help='0,1,2,3...or last')
 parser.add_argument('--data_dir', default='data_set', type=str, help='the directory of the data set')
 parser.add_argument('--batchsize', default=256, type=int, help='batch size')
-parser.add_argument('--save_path', default='result.mat', type=str, help='save path of the result')
 
 opt = parser.parse_args()
 
@@ -72,7 +71,7 @@ def extract_feature(model, dataloader):
         n, c, h, w = img.size()
         extracted_count += n
         print("Progress: %d/%d" % (extracted_count, dataset_size))
-        ff = torch.FloatTensor(n, 512).zero_()
+        ff = torch.FloatTensor(n, class_num).zero_()
 
         for i in range(2):
             if (i == 1):
