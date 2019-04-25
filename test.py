@@ -117,7 +117,7 @@ query_cam, query_label = get_id(query_path)
 
 model_structure = Model(classes_num)
 model = load_network(model_structure)
-model.classifier.classifier = nn.Sequential()
+# model.classifier.classifier = nn.Sequential()
 
 model = model.eval()
 if use_gpu:
