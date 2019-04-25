@@ -71,7 +71,7 @@ def extract_feature(model, dataloader):
         n, c, h, w = img.size()
         extracted_count += n
         print("Progress: %d/%d" % (extracted_count, dataset_size))
-        ff = torch.FloatTensor(n, class_num).zero_()
+        ff = torch.FloatTensor(n, classes_num).zero_()
 
         for i in range(2):
             if (i == 1):
