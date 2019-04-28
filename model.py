@@ -9,7 +9,7 @@ def weights_init_kaiming(m):
     classname = m.__class__.__name__
     # print(classname)
     if classname.find('Conv') != -1:
-        init.kaiming_normal_(m.weight.data, a=0, mode='fan_in')  # For old pytorch, you may use kaiming_normal.
+        init.kaiming_normal_(m.weight.data, a=0, mode='fan_in')
     elif classname.find('Linear') != -1:
         init.kaiming_normal_(m.weight.data, a=0, mode='fan_out')
         init.constant_(m.bias.data, 0.0)
@@ -30,7 +30,7 @@ class ClassBlock(nn.Module):
         super(ClassBlock, self).__init__()
         self.return_f = False
         add_block = []
-        add_block += [nn.Linear(input_dim, num_bottleneck)]
+        add_block += []
         add_block += [nn.BatchNorm1d(num_bottleneck)]
         if droprate > 0:
             add_block += [nn.Dropout(p=droprate)]
@@ -58,7 +58,12 @@ class Model(nn.Module):
         resnet_model = models.resnet50(pretrained=True)
         resnet_model.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.model = resnet_model
-        self.classifier = ClassBlock(2048, class_num, drop_rate)
+        self.dense = torch.nn.Sequential()
+        self.dense.add_module("fc1", nn.Linear(2048, 512))
+        self.dense.add_module("bn", nn.BatchNorm1d(512))
+        if drop_rate > 0:
+            self.dense.add_module("drop", nn.Dropout(p=drop_rate))
+        self.dense.add_module("fc2", nn.Linear(512, class_num))
 
     def forward(self, x):
         x = self.model.conv1(x)
@@ -70,16 +75,15 @@ class Model(nn.Module):
         x = self.model.layer3(x)
         x = self.model.layer4(x)
         x = self.model.avgpool(x)
-        x = x.view(x.size(0), x.size(1))
-        x = self.classifier(x)
+        # x = x.view(x.size(0), x.size(1))
+        x = self.dense(x)
         return x
 
 
 if __name__ == '__main__':
     net = Model(751)
-    # net.classifier = nn.Sequential()
     print(net)
-    # input = Variable(torch.FloatTensor(8, 3, 256, 128))
-    # output = net(input)
-    # print('net output size:')
-    # print(output.shape)
+    input = Variable(torch.FloatTensor(8, 3, 256, 128))
+    output = net(input)
+    print('net output size:')
+    print(output.shape)
