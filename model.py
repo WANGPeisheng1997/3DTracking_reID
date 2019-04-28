@@ -75,8 +75,8 @@ class Model(nn.Module):
         x = self.model.layer3(x)
         x = self.model.layer4(x)
         x = self.model.avgpool(x)
-        x = x.view(x.size(0), x.size(1))
-        x = self.dense(x)
+        # x = x.view(x.size(0), x.size(1))
+        # x = self.dense(x)
         return x
 
 
