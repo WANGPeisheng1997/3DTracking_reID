@@ -56,7 +56,7 @@ class Model(nn.Module):
     def __init__(self, class_num, drop_rate=0.5):
         super(Model, self).__init__()
         resnet_model = models.resnet50(pretrained=True)
-        resnet_model.avgpool = nn.AdaptiveAvgPool2d((1, 1))
+        # resnet_model.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.model = resnet_model
         self.dense = torch.nn.Sequential()
         self.dense.add_module("fc1", nn.Linear(2048, 512))
@@ -75,7 +75,7 @@ class Model(nn.Module):
         x = self.model.layer3(x)
         x = self.model.layer4(x)
         x = self.model.avgpool(x)
-        # x = x.view(x.size(0), x.size(1))
+        x = x.view(x.size(0), x.size(1))
         x = self.dense(x)
         return x
 
