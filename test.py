@@ -15,11 +15,15 @@ parser.add_argument('--gpu_ids', default='0', type=str, help='gpu_ids: e.g. 0  0
 parser.add_argument('--which_epoch', default='last', type=str, help='0,1,2,3...or last')
 parser.add_argument('--data_dir', default='data_set', type=str, help='the directory of the data set')
 parser.add_argument('--batchsize', default=256, type=int, help='batch size')
+parser.add_argument('--use_final_feature', action='store_true', help='use the feature after fc2')
 
 opt = parser.parse_args()
 
 classes_num = 751
-feature_dimension = 512
+if opt.use_final_feature:
+    feature_dimension = 751
+else:
+    feature_dimension = 512
 
 # 设定gpu
 use_gpu = torch.cuda.is_available()
@@ -115,7 +119,8 @@ query_cam, query_label = get_id(query_path)
 
 model_structure = Model(classes_num)
 model = load_network(model_structure)
-model.dense.fc2 = nn.Sequential()
+if not opt.use_final_feature:
+    model.dense.fc2 = nn.Sequential()
 
 model = model.eval()
 if use_gpu:
