@@ -1,5 +1,3 @@
-from __future__ import print_function, division
-
 import argparse
 import torch
 import torch.nn as nn
@@ -159,7 +157,7 @@ dense_params = list(map(id, model.dense.parameters()))
 base_params = filter(lambda p: id(p) not in dense_params, model.parameters())
 optimizer = optim.SGD([
     {'params': base_params, 'lr': 0.1 * opt.lr},
-    {'params': model.classifier.parameters(), 'lr': opt.lr}
+    {'params': model.dense.parameters(), 'lr': opt.lr}
 ], weight_decay=5e-4, momentum=0.9, nesterov=True)
 
 # 设置学习率递减
