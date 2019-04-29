@@ -18,6 +18,7 @@ parser.add_argument('--data_dir', default='data_set', type=str, help='the direct
 parser.add_argument('--batchsize', default=32, type=int, help='batch size')
 parser.add_argument('--lr', default=0.05, type=float, help='learning rate')
 parser.add_argument('--droprate', default=0.5, type=float, help='drop rate')
+parser.add_argument('--no_grad', action='store_true', help='resnet dont require grad')
 
 opt = parser.parse_args()
 
@@ -159,6 +160,10 @@ optimizer = optim.SGD([
     {'params': base_params, 'lr': 0.1 * opt.lr},
     {'params': model.dense.parameters(), 'lr': opt.lr}
 ], weight_decay=5e-4, momentum=0.9, nesterov=True)
+if opt.no_grad:
+    for param in model.conv1.parameters():
+        param.requires_grad = False
+
 
 # 设置学习率递减
 exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=40, gamma=0.1)
