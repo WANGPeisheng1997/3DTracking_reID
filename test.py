@@ -19,6 +19,7 @@ parser.add_argument('--batchsize', default=256, type=int, help='batch size')
 opt = parser.parse_args()
 
 classes_num = 751
+feature_dimension = 512
 
 # 设定gpu
 use_gpu = torch.cuda.is_available()
@@ -69,7 +70,7 @@ def extract_feature(model, dataloader):
         n, c, h, w = img.size()
         extracted_count += n
         print("Progress: %d/%d" % (extracted_count, dataset_size))
-        ff = torch.FloatTensor(n, classes_num).zero_()
+        ff = torch.FloatTensor(n, feature_dimension).zero_()
 
         for i in range(2):
             if (i == 1):
@@ -114,7 +115,7 @@ query_cam, query_label = get_id(query_path)
 
 model_structure = Model(classes_num)
 model = load_network(model_structure)
-# model.classifier.classifier = nn.Sequential()
+model.dense.fc2 = nn.Sequential()
 
 model = model.eval()
 if use_gpu:
