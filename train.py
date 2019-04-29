@@ -156,13 +156,13 @@ print(model)
 # 原模型基础上进行fine-tuning，新加的层学习率适当高一些
 dense_params = list(map(id, model.dense.parameters()))
 base_params = filter(lambda p: id(p) not in dense_params, model.parameters())
+if opt.no_grad:
+    for param in model.model.parameters():
+        param.requires_grad = False
 optimizer = optim.SGD([
     {'params': base_params, 'lr': 0.1 * opt.lr},
     {'params': model.dense.parameters(), 'lr': opt.lr}
 ], weight_decay=5e-4, momentum=0.9, nesterov=True)
-if opt.no_grad:
-    for param in base_params:
-        param.requires_grad = False
 
 
 # 设置学习率递减
