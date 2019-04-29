@@ -5,58 +5,11 @@ from torchvision import models
 from torch.autograd import Variable
 
 
-def weights_init_kaiming(m):
-    classname = m.__class__.__name__
-    # print(classname)
-    if classname.find('Conv') != -1:
-        init.kaiming_normal_(m.weight.data, a=0, mode='fan_in')
-    elif classname.find('Linear') != -1:
-        init.kaiming_normal_(m.weight.data, a=0, mode='fan_out')
-        init.constant_(m.bias.data, 0.0)
-    elif classname.find('BatchNorm1d') != -1:
-        init.normal_(m.weight.data, 1.0, 0.02)
-        init.constant_(m.bias.data, 0.0)
-
-
-def weights_init_classifier(m):
-    classname = m.__class__.__name__
-    if classname.find('Linear') != -1:
-        init.normal_(m.weight.data, std=0.001)
-        init.constant_(m.bias.data, 0.0)
-
-
-class ClassBlock(nn.Module):
-    def __init__(self, input_dim, class_num, droprate, num_bottleneck=512):
-        super(ClassBlock, self).__init__()
-        self.return_f = False
-        add_block = []
-        add_block += []
-        add_block += [nn.BatchNorm1d(num_bottleneck)]
-        if droprate > 0:
-            add_block += [nn.Dropout(p=droprate)]
-        add_block = nn.Sequential(*add_block)
-        add_block.apply(weights_init_kaiming)
-
-        classifier = []
-        classifier += [nn.Linear(num_bottleneck, class_num)]
-        classifier = nn.Sequential(*classifier)
-        classifier.apply(weights_init_classifier)
-
-        self.add_block = add_block
-        self.classifier = classifier
-
-    def forward(self, x):
-        x = self.add_block(x)
-        x = self.classifier(x)
-        return x
-
-
 class Model(nn.Module):
 
     def __init__(self, class_num, drop_rate=0.5):
         super(Model, self).__init__()
         resnet_model = models.resnet50(pretrained=True)
-        # resnet_model.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.model = resnet_model
         self.dense = torch.nn.Sequential()
         self.dense.add_module("fc1", nn.Linear(2048, 512))
@@ -75,8 +28,10 @@ class Model(nn.Module):
         x = self.model.layer3(x)
         x = self.model.layer4(x)
         x = self.model.avgpool(x)
-        # x = x.view(x.size(0), x.size(1))
-        # x = self.dense(x)
+        # 去除最后一层fc，因此x的大小是[n,2048,1,1]
+        x = x.view(x.size(0), x.size(1))
+        # 只保留前两个维度[n,2048]
+        x = self.dense(x)
         return x
 
 
