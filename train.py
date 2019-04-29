@@ -161,7 +161,7 @@ optimizer = optim.SGD([
     {'params': model.dense.parameters(), 'lr': opt.lr}
 ], weight_decay=5e-4, momentum=0.9, nesterov=True)
 if opt.no_grad:
-    for param in model.conv1.parameters():
+    for param in base_params:
         param.requires_grad = False
 
 
