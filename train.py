@@ -154,17 +154,18 @@ def save_network(network, epoch):
 model = Model(classes_num, opt.droprate)
 print(model)
 
-ignored_params = list(map(id, model.classifier.parameters()))
-base_params = filter(lambda p: id(p) not in ignored_params, model.parameters())
-optimizer_ft = optim.SGD([
+# 原模型基础上进行fine-tuning，新加的层学习率适当高一些
+dense_params = list(map(id, model.dense.parameters()))
+base_params = filter(lambda p: id(p) not in dense_params, model.parameters())
+optimizer = optim.SGD([
     {'params': base_params, 'lr': 0.1 * opt.lr},
     {'params': model.classifier.parameters(), 'lr': opt.lr}
 ], weight_decay=5e-4, momentum=0.9, nesterov=True)
 
 # 设置学习率递减
-exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=40, gamma=0.1)
+exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=40, gamma=0.1)
 
 model = model.cuda()
 criterion = nn.CrossEntropyLoss()
-model = train_model(model, criterion, optimizer_ft, exp_lr_scheduler,
+model = train_model(model, criterion, optimizer, exp_lr_scheduler,
                     num_epochs=60)
