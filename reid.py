@@ -97,6 +97,7 @@ for frame in range(total_frame):
         for id in range(total_id):
             image_path = os.path.join(image_directory, str(id) + ".bmp")
             if os.path.exists(image_path):
+                print(image_path)
                 image = Image.open(image_path).convert('RGB')
                 image = data_transforms(image)
                 with torch.no_grad():
