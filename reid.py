@@ -101,7 +101,7 @@ for frame in range(total_frame):
                 image = data_transforms(image)
                 with torch.no_grad():
                     feature = extract_feature(model, image)
-            features[id] = feature
+                features[id] = feature
         gallery_features[view] = features
     each_frame_features.append(gallery_features)
     rank(gallery_features["m"], gallery_features["l"])
