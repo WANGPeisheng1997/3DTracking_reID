@@ -64,10 +64,10 @@ def rank(query, gallery):
     # query and gallery: {id:feature, ...}
     for id in query:
         print(id)
-        query_feature = query[id]
+        query_feature = query[id][0]
         similarity = {}
         for g_id in gallery:
-            gallery_feature = gallery[g_id]
+            gallery_feature = gallery[g_id][0]
             sim = query_feature.dot(gallery_feature)
             similarity[g_id] = sim
         print(similarity)
