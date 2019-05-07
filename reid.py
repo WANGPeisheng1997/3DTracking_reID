@@ -90,8 +90,8 @@ for frame in range(total_frame):
                 image = data_transforms(image)
                 with torch.no_grad():
                     feature = extract_feature(model, image)
-                    print(feature)
             features[id] = feature
+        print(features)
         gallery_features[view] = features
     each_frame_features += gallery_features
 
