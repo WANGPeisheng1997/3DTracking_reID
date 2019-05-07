@@ -87,11 +87,10 @@ for frame in range(total_frame):
             image_path = os.path.join(image_directory, str(id) + ".bmp")
             if os.path.exists(image_path):
                 image = Image.open(image_path).convert('RGB')
-                print(image)
                 image = data_transforms(image)
-                print(image.size())
                 with torch.no_grad():
                     feature = extract_feature(model, image)
+                    print(feature)
             features[id] = feature
         gallery_features[view] = features
     each_frame_features += gallery_features
