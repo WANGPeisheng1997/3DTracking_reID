@@ -56,7 +56,9 @@ def extract_feature(model, image):
     input_img = Variable(image.cuda())
     input_img = input_img.view(1, 3, 256, 128)
     outputs = model(input_img)
-    feature = outputs.data.cpu().float()
+    feature = outputs.data.cpu().float()[0]
+    norm2 = feature.norm()
+    feature = feature.div(norm2)
     return feature
 
 
@@ -64,10 +66,10 @@ def rank(query, gallery):
     # query and gallery: {id:feature, ...}
     for id in query:
         print(id)
-        query_feature = query[id][0]
+        query_feature = query[id]
         similarity = {}
         for g_id in gallery:
-            gallery_feature = gallery[g_id][0]
+            gallery_feature = gallery[g_id]
             sim = query_feature.dot(gallery_feature)
             similarity[g_id] = sim
         print(similarity)
