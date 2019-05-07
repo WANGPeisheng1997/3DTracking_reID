@@ -56,6 +56,7 @@ def load_network(network):
 
 def extract_feature(model, image):
     input_img = Variable(image.cuda())
+    input_img = input_img.view(1, 3, 256, 128)
     outputs = model(input_img)
     feature = outputs.data.cpu().float()
     return feature
