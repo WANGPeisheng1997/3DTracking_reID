@@ -50,8 +50,6 @@ data_transforms = transforms.Compose([
 image_datasets = {x: datasets.ImageFolder(os.path.join(opt.data_dir, x), data_transforms) for x in ['test', 'query']}
 data_loaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=opt.batchsize,
                                                   shuffle=False, num_workers=16) for x in ['test', 'query']}
-class_names = image_datasets['query'].classes
-
 
 def load_network(network):
     save_path = os.path.join('model', 'epoch_%s.model' % opt.which_epoch)
