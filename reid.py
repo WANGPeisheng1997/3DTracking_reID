@@ -90,6 +90,7 @@ total_frame = 29
 total_id = 16
 each_frame_features = []
 for frame in range(total_frame):
+    print("frame:%d" % frame)
     gallery_features = {}
     for view in ["l", "m", "r"]:
         image_directory = os.path.join(opt.data_dir, view, str(frame))
