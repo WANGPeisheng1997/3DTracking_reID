@@ -8,14 +8,12 @@ from PIL import Image
 
 import os
 from model import Model
-from evaluate import test_market
 
 # 设定参数
 parser = argparse.ArgumentParser(description='Testing')
 parser.add_argument('--gpu_ids', default='0', type=str, help='gpu_ids: e.g. 0  0,1,2  0,2')
 parser.add_argument('--which_epoch', default='last', type=str, help='0,1,2,3...or last')
 parser.add_argument('--data_dir', default='gallery', type=str, help='the directory of the data set')
-parser.add_argument('--batchsize', default=256, type=int, help='batch size')
 parser.add_argument('--use_final_feature', action='store_true', help='use the feature after fc2')
 
 opt = parser.parse_args()
@@ -62,6 +60,19 @@ def extract_feature(model, image):
     return feature
 
 
+def rank(query, gallery):
+    # query and gallery: {id:feature, ...}
+    for id in query:
+        print(id)
+        query_feature = query[id]
+        similarity = {}
+        for g_id in gallery:
+            gallery_feature = gallery[g_id]
+            sim = query_feature * gallery_feature
+            similarity[g_id] = sim
+        print(similarity)
+
+
 # 加载模型并提取特征
 
 model_structure = Model(classes_num)
@@ -93,6 +104,7 @@ for frame in range(total_frame):
             features[id] = feature
         gallery_features[view] = features
     each_frame_features.append(gallery_features)
+    rank(gallery_features["m"], gallery_features["l"])
 
 
-print(each_frame_features)
+# print(each_frame_features)
