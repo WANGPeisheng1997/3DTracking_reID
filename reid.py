@@ -57,22 +57,64 @@ def extract_feature(model, image):
     input_img = input_img.view(1, 3, 256, 128)
     outputs = model(input_img)
     feature = outputs.data.cpu().float()[0]
+    # L2 norm 82.4%->84.7%
     norm2 = feature.norm()
     feature = feature.div(norm2)
     return feature
 
 
+def max_sim_id(dict):
+    max_sim_dict = {}
+    for id in dict:
+        max_sim_dict[id] = dict[id][0][1]
+    max_sim_dict = sorted(max_sim_dict.items(), key=lambda item: item[1], reverse=True)
+    return max_sim_dict[0][0]
+
+
 def rank(query, gallery):
     # query and gallery: {id:feature, ...}
-    for id in query:
-        print(id)
-        query_feature = query[id]
+    total = 0
+    rank1_correct = 0
+    rank_result_dict = {}
+    match_correct = 0
+    for q_id in query:
+        print(q_id)
+        query_feature = query[q_id]
         similarity = {}
         for g_id in gallery:
             gallery_feature = gallery[g_id]
             sim = query_feature.dot(gallery_feature)
             similarity[g_id] = sim
-        print(similarity)
+        # print(similarity)
+        rank_result = sorted(similarity.items(), key=lambda item: item[1], reverse=True)
+        rank_result_dict[q_id] = rank_result
+        print(rank_result)
+        total += 1
+        if rank_result[0][0] == q_id:
+            rank1_correct += 1
+
+    match_dict = {}
+    for i in range(len(query)):
+        max_id = max_sim_id(rank_result_dict)
+        # 第max_id个query匹配了第rank_result_dict[max_id][0][0]个gallery
+        match_id = rank_result_dict[max_id][0][0]
+        match_dict[max_id] = match_id
+        # 删除相似矩阵的max_id行match_id列
+        del(rank_result_dict[max_id])
+        for id in rank_result_dict:
+            similarity = rank_result_dict[id]
+            for j in range(len(similarity)):
+                if similarity[j][0] == match_id:
+                    del(similarity[j])
+                    break
+            rank_result_dict[id] = similarity
+
+    print(match_dict)
+    for id in match_dict:
+        if id == match_dict[id]:
+            match_correct += 1
+
+    return torch.Tensor([total, rank1_correct, match_correct])
 
 
 # 加载模型并提取特征
@@ -91,6 +133,7 @@ if use_gpu:
 total_frame = 29
 total_id = 16
 each_frame_features = []
+result = torch.FloatTensor([0, 0, 0])
 for frame in range(total_frame):
     print("frame:%d" % frame)
     gallery_features = {}
@@ -107,7 +150,13 @@ for frame in range(total_frame):
                 features[id] = feature
         gallery_features[view] = features
     each_frame_features.append(gallery_features)
-    rank(gallery_features["m"], gallery_features["l"])
+    result += rank(gallery_features["m"], gallery_features["l"])
+    result += rank(gallery_features["m"], gallery_features["r"])
+    total, rank1_correct, match_correct = result[0], result[1], result[2]
+
+
+print("rank1:%.3f, %d/%d" % (rank1_correct/total, rank1_correct, total))
+print("match accuracy:%.3f, %d/%d" % (match_correct/total, match_correct, total))
 
 
 # print(each_frame_features)
