@@ -206,7 +206,7 @@ for frame in range(total_frame - 1):
             match_id = rank_result[0][0]
 
         if not correct_answer_array[frame][id] and match_id != -1:
-        print("match_id:" + str(match_id) + "correct_id:", correct_answer_array[frame][id])
+            print("match_id:" + str(match_id) + "correct_id:", correct_answer_array[frame][id])
 
         total += 1
         if correct_answer_array[frame][id] and id == match_id:
