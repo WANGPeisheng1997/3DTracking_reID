@@ -161,65 +161,69 @@ result = torch.FloatTensor([0, 0, 0])
 # print("match accuracy:%.3f, %d/%d" % (match_correct/total, match_correct, total))
 
 range_person_array, correct_answer_array = get_nearby_info()
-correct = 0
-total = 0
-
-for frame in range(total_frame - 1):
-    print("frame:%d and %d" % (frame, frame + 1))
-
-    for view in ["l", "m", "r"]:
-
-        current_image_directory = os.path.join(opt.data_dir, view, str(frame))
-        next_image_directory = os.path.join(opt.data_dir, view, str(frame + 1))
-
-        current_features = {}
-        for id in range(total_id):
-            image_path = os.path.join(current_image_directory, str(id) + ".bmp")
-            if os.path.exists(image_path):
-                image = Image.open(image_path).convert('RGB')
-                image = data_transforms(image)
-                with torch.no_grad():
-                    feature = extract_feature(model, image)
-                current_features[id] = feature
-
-        next_features = {}
-        for id in range(total_id):
-            image_path = os.path.join(next_image_directory, str(id) + ".bmp")
-            if os.path.exists(image_path):
-                image = Image.open(image_path).convert('RGB')
-                image = data_transforms(image)
-                with torch.no_grad():
-                    feature = extract_feature(model, image)
-                next_features[id] = feature
 
 
-        for id in current_features:
-            nearby_person_ids = range_person_array[frame][id]
-            if nearby_person_ids == []:
-                match_id = -1
-            else:
-                similarity = {}
-                for n_id in nearby_person_ids:
-                    sim = current_features[id].dot(next_features[n_id])
-                    similarity[n_id] = sim
+for yuzhi in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 1]:
 
-                rank_result = sorted(similarity.items(), key=lambda item: item[1], reverse=True)
-                # print(rank_result)
-                if rank_result[0][1] >= 0.3:
-                    match_id = rank_result[0][0]
-                else:
+    correct = 0
+    total = 0
+
+    for frame in range(total_frame - 1):
+        print("frame:%d and %d" % (frame, frame + 1))
+
+        for view in ["l", "m", "r"]:
+
+            current_image_directory = os.path.join(opt.data_dir, view, str(frame))
+            next_image_directory = os.path.join(opt.data_dir, view, str(frame + 1))
+
+            current_features = {}
+            for id in range(total_id):
+                image_path = os.path.join(current_image_directory, str(id) + ".bmp")
+                if os.path.exists(image_path):
+                    image = Image.open(image_path).convert('RGB')
+                    image = data_transforms(image)
+                    with torch.no_grad():
+                        feature = extract_feature(model, image)
+                    current_features[id] = feature
+
+            next_features = {}
+            for id in range(total_id):
+                image_path = os.path.join(next_image_directory, str(id) + ".bmp")
+                if os.path.exists(image_path):
+                    image = Image.open(image_path).convert('RGB')
+                    image = data_transforms(image)
+                    with torch.no_grad():
+                        feature = extract_feature(model, image)
+                    next_features[id] = feature
+
+
+            for id in current_features:
+                nearby_person_ids = range_person_array[frame][id]
+                if nearby_person_ids == []:
                     match_id = -1
+                else:
+                    similarity = {}
+                    for n_id in nearby_person_ids:
+                        sim = current_features[id].dot(next_features[n_id])
+                        similarity[n_id] = sim
 
-            total += 1
-            correct_answer = id if correct_answer_array[frame][id] else -1
-            if match_id == correct_answer:
-                correct += 1
-            else:
-                print("match_id:" + str(match_id) + " correct_id:", correct_answer)
+                    rank_result = sorted(similarity.items(), key=lambda item: item[1], reverse=True)
+                    # print(rank_result)
+                    if rank_result[0][1] >= yuzhi:
+                        match_id = rank_result[0][0]
+                    else:
+                        match_id = -1
+
+                total += 1
+                correct_answer = id if correct_answer_array[frame][id] else -1
+                if match_id == correct_answer:
+                    correct += 1
+                else:
+                    print("match_id:" + str(match_id) + " correct_id:", correct_answer)
 
 
 
-print("cross-frames re-id")
-print("match accuracy:%.3f, %d/%d" % (correct/total, correct, total))
+    print("cross-frames re-id")
+    print("match accuracy:%.3f, %d/%d" % (correct/total, correct, total))
 
-# print(each_frame_features)
+    # print(each_frame_features)
