@@ -161,6 +161,8 @@ result = torch.FloatTensor([0, 0, 0])
 # print("match accuracy:%.3f, %d/%d" % (match_correct/total, match_correct, total))
 
 range_person_array, correct_answer_array = get_nearby_info()
+correct = 0
+total = 0
 
 for frame in range(total_frame - 1):
     print("frame:%d and %d" % (frame, frame + 1))
@@ -192,19 +194,25 @@ for frame in range(total_frame - 1):
     for id in current_features:
         nearby_person_ids = range_person_array[frame][id]
         if nearby_person_ids == []:
-            result = -1
+            match_id = -1
         else:
             similarity = {}
             for n_id in nearby_person_ids:
                 sim = current_features[id].dot(next_features[n_id])
                 similarity[n_id] = sim
 
-            print(similarity)
             rank_result = sorted(similarity.items(), key=lambda item: item[1], reverse=True)
             print(rank_result)
+            match_id = rank_result[0][0]
+
+        total += 1
+        if correct_answer_array[frame][id] and id == match_id:
+            correct += 1
+        if not correct_answer_array[frame][id] and match_id == -1:
+            correct += 1
 
 
 print("cross-frames re-id")
-# print("match accuracy:%.3f, %d/%d" % (match_correct/total, match_correct, total))
+print("match accuracy:%.3f, %d/%d" % (correct/total, correct, total))
 
 # print(each_frame_features)
