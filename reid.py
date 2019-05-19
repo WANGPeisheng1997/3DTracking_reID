@@ -5,6 +5,7 @@ from torch.autograd import Variable
 import torch.backends.cudnn as cudnn
 from torchvision import datasets, models, transforms
 from PIL import Image
+from read_3d import get_nearby_info
 
 import os
 from model import Model
@@ -155,8 +156,55 @@ for frame in range(total_frame):
     total, rank1_correct, match_correct = result[0], result[1], result[2]
 
 
+print("cross-views re-id")
 print("rank1:%.3f, %d/%d" % (rank1_correct/total, rank1_correct, total))
 print("match accuracy:%.3f, %d/%d" % (match_correct/total, match_correct, total))
 
+range_person_array, correct_answer_array = get_nearby_info()
+
+for frame in range(total_frame - 1):
+    print("frame:%d and %d" % (frame, frame + 1))
+    view = "m"
+    current_image_directory = os.path.join(opt.data_dir, view, str(frame))
+    next_image_directory = os.path.join(opt.data_dir, view, str(frame))
+
+    current_features = {}
+    for id in range(total_id):
+        image_path = os.path.join(current_image_directory, str(id) + ".bmp")
+        if os.path.exists(image_path):
+            image = Image.open(image_path).convert('RGB')
+            image = data_transforms(image)
+            with torch.no_grad():
+                feature = extract_feature(model, image)
+            current_features[id] = feature
+
+    next_features = {}
+    for id in range(total_id):
+        image_path = os.path.join(next_image_directory, str(id) + ".bmp")
+        if os.path.exists(image_path):
+            image = Image.open(image_path).convert('RGB')
+            image = data_transforms(image)
+            with torch.no_grad():
+                feature = extract_feature(model, image)
+            next_features[id] = feature
+
+
+    for id in current_features:
+        nearby_person_ids = range_person_array[frame][id]
+        if nearby_person_ids == []:
+            result = -1
+        else:
+            similarity = {}
+            for n_id in nearby_person_ids:
+                sim = current_features[id].dot(next_features[n_id])
+                similarity[n_id] = sim
+
+            print(similarity)
+            rank_result = sorted(similarity.items(), key=lambda item: item[1], reverse=True)
+            print(rank_result)
+
+
+print("cross-frames re-id")
+# print("match accuracy:%.3f, %d/%d" % (match_correct/total, match_correct, total))
 
 # print(each_frame_features)
