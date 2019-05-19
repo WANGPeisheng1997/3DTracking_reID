@@ -202,20 +202,23 @@ for frame in range(total_frame - 1):
                 similarity[n_id] = sim
 
             rank_result = sorted(similarity.items(), key=lambda item: item[1], reverse=True)
-            print(rank_result)
+            # print(rank_result)
             if rank_result[0][1] >= 0.3:
                 match_id = rank_result[0][0]
             else:
                 match_id = -1
 
-        if not correct_answer_array[frame][id] and match_id != -1:
-            print("match_id:" + str(match_id) + "correct_id:", correct_answer_array[frame][id])
-
         total += 1
-        if correct_answer_array[frame][id] and id == match_id:
-            correct += 1
-        if not correct_answer_array[frame][id] and match_id == -1:
-            correct += 1
+        if correct_answer_array[frame][id]:
+            if id == match_id:
+                correct += 1
+            else:
+                print("match_id:" + str(match_id) + " correct_id:", correct_answer_array[frame][id])
+        if not correct_answer_array[frame][id]:
+            if match_id == -1:
+                correct += 1
+            else:
+                print("match_id:" + str(match_id) + " correct_id:", correct_answer_array[frame][id])
 
 
 print("cross-frames re-id")
