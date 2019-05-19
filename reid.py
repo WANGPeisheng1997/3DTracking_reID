@@ -210,7 +210,7 @@ for frame in range(total_frame - 1):
 
         total += 1
         correct_answer = id if correct_answer_array[frame][id] else -1
-        if id == correct_answer:
+        if match_id == correct_answer:
             correct += 1
         else:
             print("match_id:" + str(match_id) + " correct_id:", correct_answer)
