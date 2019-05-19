@@ -204,6 +204,8 @@ for frame in range(total_frame - 1):
             rank_result = sorted(similarity.items(), key=lambda item: item[1], reverse=True)
             print(rank_result)
             match_id = rank_result[0][0]
+        
+        print("match_id:%d, correct_id:", match_id, correct_answer_array[frame][id])
 
         total += 1
         if correct_answer_array[frame][id] and id == match_id:
