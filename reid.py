@@ -135,30 +135,30 @@ total_frame = 29
 total_id = 16
 each_frame_features = []
 result = torch.FloatTensor([0, 0, 0])
-for frame in range(total_frame):
-    print("frame:%d" % frame)
-    gallery_features = {}
-    for view in ["l", "m", "r"]:
-        image_directory = os.path.join(opt.data_dir, view, str(frame))
-        features = {}
-        for id in range(total_id):
-            image_path = os.path.join(image_directory, str(id) + ".bmp")
-            if os.path.exists(image_path):
-                image = Image.open(image_path).convert('RGB')
-                image = data_transforms(image)
-                with torch.no_grad():
-                    feature = extract_feature(model, image)
-                features[id] = feature
-        gallery_features[view] = features
-    each_frame_features.append(gallery_features)
-    result += rank(gallery_features["m"], gallery_features["l"])
-    result += rank(gallery_features["m"], gallery_features["r"])
-    total, rank1_correct, match_correct = result[0], result[1], result[2]
-
-
-print("cross-views re-id")
-print("rank1:%.3f, %d/%d" % (rank1_correct/total, rank1_correct, total))
-print("match accuracy:%.3f, %d/%d" % (match_correct/total, match_correct, total))
+# for frame in range(total_frame):
+#     print("frame:%d" % frame)
+#     gallery_features = {}
+#     for view in ["l", "m", "r"]:
+#         image_directory = os.path.join(opt.data_dir, view, str(frame))
+#         features = {}
+#         for id in range(total_id):
+#             image_path = os.path.join(image_directory, str(id) + ".bmp")
+#             if os.path.exists(image_path):
+#                 image = Image.open(image_path).convert('RGB')
+#                 image = data_transforms(image)
+#                 with torch.no_grad():
+#                     feature = extract_feature(model, image)
+#                 features[id] = feature
+#         gallery_features[view] = features
+#     each_frame_features.append(gallery_features)
+#     result += rank(gallery_features["m"], gallery_features["l"])
+#     result += rank(gallery_features["m"], gallery_features["r"])
+#     total, rank1_correct, match_correct = result[0], result[1], result[2]
+#
+#
+# print("cross-views re-id")
+# print("rank1:%.3f, %d/%d" % (rank1_correct/total, rank1_correct, total))
+# print("match accuracy:%.3f, %d/%d" % (match_correct/total, match_correct, total))
 
 range_person_array, correct_answer_array = get_nearby_info()
 
@@ -166,7 +166,7 @@ for frame in range(total_frame - 1):
     print("frame:%d and %d" % (frame, frame + 1))
     view = "m"
     current_image_directory = os.path.join(opt.data_dir, view, str(frame))
-    next_image_directory = os.path.join(opt.data_dir, view, str(frame))
+    next_image_directory = os.path.join(opt.data_dir, view, str(frame + 1))
 
     current_features = {}
     for id in range(total_id):
