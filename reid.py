@@ -203,7 +203,7 @@ for frame in range(total_frame - 1):
 
             rank_result = sorted(similarity.items(), key=lambda item: item[1], reverse=True)
             print(rank_result)
-            if rank_result[0][1] >= 0.5:
+            if rank_result[0][1] >= 0.3:
                 match_id = rank_result[0][0]
             else:
                 match_id = -1
