@@ -161,13 +161,16 @@ result = torch.FloatTensor([0, 0, 0])
 # print("match accuracy:%.3f, %d/%d" % (match_correct/total, match_correct, total))
 
 range_person_array, correct_answer_array = get_nearby_info()
-correct = 0
-total = 0
 
-for frame in range(total_frame - 1):
-    print("frame:%d and %d" % (frame, frame + 1))
+for view in ["l", "m", "r"]:
 
-    for view in ["l", "m", "r"]:
+    FN = 0 # miss
+    FP = 0 # more
+    FRAG = 0 # wrong
+    total = 0
+
+    for frame in range(total_frame - 1):
+        print("frame:%d and %d" % (frame, frame + 1))
 
         current_image_directory = os.path.join(opt.data_dir, view, str(frame))
         next_image_directory = os.path.join(opt.data_dir, view, str(frame + 1))
@@ -212,14 +215,17 @@ for frame in range(total_frame - 1):
 
             total += 1
             correct_answer = id if correct_answer_array[frame][id] else -1
-            if match_id == correct_answer:
-                correct += 1
-            else:
+            if match_id != correct_answer:
                 print("match_id:" + str(match_id) + " correct_id:", correct_answer)
+                if correct_answer == -1:
+                    FP += 1
+                elif match_id == -1:
+                    FN += 1
+                else:
+                    FRAG += 1
 
 
-
-print("cross-frames re-id")
-print("match accuracy:%.3f, %d/%d" % (correct/total, correct, total))
+    print("cross-frames re-id")
+    print("MOTA:%.3f, FN:%d FP:%d FRAG:%d total:%d" % (1-(FP+FN+FRAG)/total, FN, FP, FRAG, total))
 
 # print(each_frame_features)
